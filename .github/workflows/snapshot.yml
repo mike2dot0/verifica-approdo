@@ -24,7 +24,7 @@ jobs:
           NOW=$(TZ='Europe/Rome' date '+%d/%m/%Y %H\:%M\:%S')
           timeout 30 ffmpeg -y \
             -i "https://5e0add8153fcd.streamlock.net:1936/vedetta/vado-ligure.stream/playlist.m3u8" \
-            -i arrow.png \
+            -i assets/arrow.png \
             -filter_complex "[0:v]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='${NOW}':fontcolor=white:fontsize=28:box=1:boxcolor=black@0.5:boxborderw=8:x=w-text_w-10:y=10[txt];[txt][1:v]overlay=(main_w-overlay_w)/2:10[outv]" \
             -map "[outv]" \
             -frames:v 1 -q:v 2 docs/latest.jpg
