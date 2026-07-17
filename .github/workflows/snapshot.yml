@@ -1,0 +1,34 @@
+name: Webcam Snapshot Vado Ligure
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Extract frame from HLS stream
+        run: |
+          mkdir -p docs
+          timeout 30 ffmpeg -y \
+            -i "https://5e0add8153fcd.streamlock.net:1936/vedetta/vado-ligure.stream/playlist.m3u8" \
+            -frames:v 1 -q:v 2 docs/latest.jpg
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/latest.jpg
+          git diff --staged --quiet || git commit -m "Aggiorna snapshot $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git push
